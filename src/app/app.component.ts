@@ -8,19 +8,24 @@ import { Label } from 'ng2-charts';
   styleUrls: [ './app.component.css' ]
 })
 export class AppComponent  {
-  public barChartOptions: ChartOptions = {
-    responsive: false,
-  };
+  public barChartOptions: ChartOptions;// = {
+    //responsive: false,
+  //};
   public barChartLabels: Label[] = ['2006', '2007', '2008', '2009', '2010', '2011', '2012'];
   public barChartType: ChartType = 'horizontalBar';
   public barChartLegend = true;
   public barChartPlugins = [];
-  calculateMaxValue(data) {
+
+  calculateMaxValue() {
     let chartOptions = {
       scaleOverride: true,
       scaleShowVerticalLines: false,
+      maintainAspectRatio:true,
+      scaleShowValues:true,
+      scaleValuePaddingX:20,
       responsive: true,
-      barWidth: 20,
+      barHeight:200,
+      barWidth: 10,
       tooltips: {
         enabled: false
       },
@@ -29,15 +34,7 @@ export class AppComponent  {
       },
       plugins: {
         datalabels: {
-          display: function (context) {
-            // console.log(context);
-            if ((context.datasetIndex === 0 && context.dataIndex === 0) || (context.datasetIndex === 0 && context.dataIndex === 1) || (context.datasetIndex === 2 && context.dataIndex === 2) || (context.datasetIndex === 3 && context.dataIndex === 3) || (context.datasetIndex === 4 && context.dataIndex === 4)) {
-              return true;
-            }
-            else {
-              return false;
-            }
-          },
+          display: false,
           backgroundColor: 'white',
           borderColor: 'white',
           borderRadius: 1,
@@ -45,56 +42,31 @@ export class AppComponent  {
           anchor: 'end',
           color: 'black',
           align: 'end',
-          offset: function (context) {
-            if ((context.datasetIndex === 0 && context.dataIndex === 0)) {
-              if (context.dataset.data[0] === 0) {
-                return '10';
-              }
-              else {
-                return '-15';
-              }
-            }
-            else if ((context.datasetIndex === 0 && context.dataIndex === 1)) {
-              if (context.dataset.data[1] === 0) {
-
-                return '10';
-              }
-              else {
-                return '-15';
-              }
-            }
-            else if ((context.datasetIndex === 2 && context.dataIndex === 2)) {
-              if (context.dataset.data[2] === 0) {
-                return '10';
-              }
-              else {
-                return '-15';
-              }
-            }
-            else if ((context.datasetIndex === 3 && context.dataIndex === 3)) {
-              if (context.dataset.data[3] === 0) {
-                return '10';
-              }
-              else {
-                return '-15';
-              }
-            }
-            else if ((context.datasetIndex === 4 && context.dataIndex === 4)) {
-              if (context.dataset.data[4] === 0) {
-                return '10';
-              }
-              else {
-                return '-15';
-              }
-            }
-          },
+          offset: -100,
           font: {
             weight: 'normal',
             size: 20
           },
-          formatter: Math.round
+          formatter: Math.round,
+          
         }
       },
+      animation: {
+           onComplete: function () {
+               var chartInstance = this.chart,
+               ctx = chartInstance.ctx;
+               ctx.textAlign = 'center';
+               ctx.textBaseline = 'bottom';
+               this.data.datasets.forEach(function (dataset, i) {
+                   var meta = chartInstance.controller.getDatasetMeta(i);
+                   meta.data.forEach(function (bar, index) {
+                       var data = dataset.data[index];
+                       ctx.fillText(data, bar._model.x, bar._model.y +5);
+                   });
+               });
+           }
+ 
+        },
       pointLabels: {
         display: true
       },
@@ -103,7 +75,7 @@ export class AppComponent  {
         fontColor: '#666',
         xAxes: [{
             display: true,
-            barPercentage: 0.90,
+            barPercentage: 0.40,
             stacked: true,
             color: "transparent",
             ticks: {
@@ -121,7 +93,7 @@ export class AppComponent  {
             },
           }],
         yAxes: [{
-            barPercentage: 0.40,
+            barPercentage: 0.90,
             display: true,
             stacked: true,
             gridLines: {
@@ -135,24 +107,27 @@ export class AppComponent  {
           }]
       },
     };
-    let dataObj =
-    {
-      "planDate": "2018-04-12T00:00:00Z",
-      "shiftId": "1",
-      "totInProgressAppts": "1",
-      "totPendingAppts": "2",
-      "totPlannedAppts": "5",
-      "totcompletedAppts": "2"
-    }
+    
     return chartOptions;
   }
 
-  public barChartData: ChartDataSets[] = [
-    { data: [65, 59, 80, 81, 56, 55, 40], label: 'Series A' },
+  public barChartData: ChartDataSets[] = 
+    [
+      {
+        data: [200,100,200,200,50,60,30],
+        backgroundColor: [
+          '#007dc6',
+          '#367c2b',
+          'rgb(255,100,255)',
+          'rgb(255,190,205)',
+          '#e62b1e',
+        ],
+      }
   ];
 
   constructor() { }
 
   ngOnInit() {
+    this.barChartOptions = this.calculateMaxValue();
   }
 }
